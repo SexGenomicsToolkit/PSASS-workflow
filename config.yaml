@@ -1,0 +1,36 @@
+assembly: 'data/genome/genome.fa'
+
+reads:
+    males:
+        L008:
+            R1: data/reads/males_L008_R1.fastq.gz
+            R2: data/reads/males_L008_R2.fastq.gz
+    females:
+        L008:
+            R1: data/reads/females_L008_R1.fastq.gz
+            R2: data/reads/females_L008_R2.fastq.gz
+    test:
+        L008:
+            R1: data/reads/females_L008_R1.fastq.gz
+            R2: data/reads/females_L008_R2.fastq.gz
+
+resources:
+    alignment:
+        threads: 8
+        memory: 32000
+        runtime: '4-00:00:00'
+    sort:
+        threads: 4
+        memory: 32000
+        runtime: '1-00:00:00'
+    merge:
+        threads: 4
+        memory: 32000
+        runtime: '1-00:00:00'
+    rmdup:
+        memory: 32000
+        runtime: '1-00:00:00'
+    mpileup:
+        threads: 4
+        memory: 32000
+        runtime: '2-00:00:00'
