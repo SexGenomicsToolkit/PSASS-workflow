@@ -1,0 +1,7 @@
+# Snakemake folders that should not be backed up
+.snakemake
+data/
+logs/
+output/
+benchmarks/
+cfg/
