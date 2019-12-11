@@ -2,7 +2,7 @@ import itertools
 
 configfile: 'config.yaml'
 
-include: 'rules/alignment.smk'
+include: 'rules/processing.smk'
 
 
 def all_pairs(wildcards):

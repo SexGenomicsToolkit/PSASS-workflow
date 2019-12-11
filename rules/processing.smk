@@ -143,12 +143,10 @@ rule samtools_mpileup:
         'logs/mpileup_{sample1}_{sample2}.txt'
     conda:
         '../envs/psass.yaml'
-    threads:
-        config['resources']['mpileup']['threads']
     resources:
         memory = lambda wildcards, attempt: config['resources']['rmdup']['memory'] * attempt
     params:
         runtime = config['resources']['rmdup']['runtime']
     shell:
-        'bcftools mpileup -d 500 -f {input.reference} -Q 0 --threads {threads} '
+        'samtools mpileup -f {input.reference} -Q 0 -aa '
         '-o {output} {input.sample1} {input.sample2} 2> {log}'

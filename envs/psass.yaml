@@ -3,6 +3,5 @@ channels:
     - conda-forge
     - bioconda
 dependencies:
-    - bcftools == 1.10
     - bwa == 0.7.17
     - samtools == 1.10
