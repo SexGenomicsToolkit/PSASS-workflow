@@ -13,7 +13,7 @@ rule bwa_index:
     benchmark:
         'benchmarks/bwa/index.tsv'
     log:
-        'logs/bwa/index.tsv'
+        'logs/bwa_index.tsv'
     conda:
         '../envs/psass.yaml'
     shell:
