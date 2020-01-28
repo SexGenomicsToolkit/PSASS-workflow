@@ -1,5 +1,16 @@
-assembly: 'data/genome/genome.fa'
+# All paths are relative to the pipeline's directory
 
+# Path to the assembly file (fasta)
+assembly: 'data/genome/test.fa'
+
+# Path to a GFF file for gene-level metrics (leave blank if you do not have a GFF file)
+gff:
+
+# Paths to the reads files.
+# Reads file are organized first by pool (e.g. "females"). There can be more than two pools, <decide what to do>.
+# Within each pool, reads are separated by sequencing lanes and then by "read-pair" files.
+# If the sequencing was done on a single lane, specify it nonetheless. If reads are not paired, simply specify the path to
+# the reads file without name, e.g. 'L001: data/reads/reads.fq.gz'
 reads:
     males:
         L008:
@@ -9,28 +20,61 @@ reads:
         L008:
             R1: data/reads/females_L008_R1.fastq.gz
             R2: data/reads/females_L008_R2.fastq.gz
-    test:
-        L008:
-            R1: data/reads/females_L008_R1.fastq.gz
-            R2: data/reads/females_L008_R2.fastq.gz
 
+mpileup:
+    min_quality: 0
+
+# PSASS runs
+# Each run is defined by its name, which will be the output prefix used for PSASS 'analyze'.
+# All PSASS parameters are defined by their name without the trailing '--' (e.g. "--pool1" becomes "pool1").
+# For a complete description of PSASS parameters, check the documentation (https://github.com/RomainFeron/PSASS).
+psass:
+    default:
+        window-size: 50000
+        output-resolution: 1000
+        group-snps: 1
+    stringent:
+        freq-het: 0.5
+        range-het: 0.05
+        freq-hom: 1
+        range-hom: 0
+        window-size: 50000
+        output-resolution: 1000
+        group-snps: 1
+    small_window:
+        window-size: 5000
+        output-resolution: 500
+        group-snps: 1
+
+# Resources to allocate to jobs for each step.
+# "threads" specify the number of threads to allocate to a job in local mode and the number of cores in cluster mode
+# "memory" specifies the memory (RAM) to allocate to a job in cluster mode (in Mb for slurm)
+# "runtime" species the maximum execution time for a job in cluster mode (format: "D-HH:MM:SS" for slurm)
 resources:
-    alignment:
+    index:
+        memory: 4000
+        runtime: '0-02:00:00'
+    alignment:  # BWA mem
+        threads: 24
+        memory: 12000
+        runtime: '1-00:00:00'
+    sort:  # Samtools sort
         threads: 8
-        memory: 32000
-        runtime: '4-00:00:00'
-    sort:
-        threads: 4
-        memory: 32000
-        runtime: '1-00:00:00'
-    merge:
-        threads: 4
-        memory: 32000
-        runtime: '1-00:00:00'
-    rmdup:
-        memory: 32000
-        runtime: '1-00:00:00'
-    mpileup:
-        threads: 4
+        memory: 16000
+        runtime: '0-04:00:00'
+    merge:  # Samtools merge
+        threads: 8
+        memory: 6000
+        runtime: '0-04:00:00'
+    rmdup:  # Samtools rmdup
+        memory: 2000
+        runtime: '0-12:00:00'
+    mpileup:  # Samtools mpileup
         memory: 32000
         runtime: '2-00:00:00'
+    psass:  # PSASS runs
+        memory: 4000
+        runtime: '0-02:00:00'
+    psass-vis:  # PSASS-vis plotting
+        memory: 4000
+        runtime: '0-01:00:00'

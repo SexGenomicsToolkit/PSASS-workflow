@@ -23,8 +23,11 @@ rule bwa_index:
 def get_reads(wildcards):
     '''
     '''
-    reads = config['reads'][wildcards.sample][wildcards.lane]
-    return [reads['R1'], reads['R2']]
+    reads = config['reads'][wildcards.pool][wildcards.lane]
+    if 'R1' in reads:
+        return [reads['R1'], reads['R2']]
+    else:
+        return reads
 
 
 rule bwa_mem:
@@ -35,11 +38,11 @@ rule bwa_mem:
         assembly_file = config['assembly'],
         reads_files = get_reads
     output:
-        temp('output/{sample}_{lane}.cram')
+        temp('output/{pool}_{lane}.cram')
     benchmark:
-        'benchmarks/align_{sample}_{lane}.tsv'
+        'benchmarks/align_{pool}_{lane}.tsv'
     log:
-        'logs/align_{sample}_{lane}.txt'
+        'logs/align_{pool}_{lane}.txt'
     conda:
         '../envs/psass.yaml'
     threads:
@@ -59,11 +62,11 @@ rule samtools_sort:
     input:
         rules.bwa_mem.output
     output:
-        temp('output/{sample}_{lane}.sorted.cram')
+        temp('output/{pool}_{lane}.sorted.cram')
     benchmark:
-        'benchmarks/sort_{sample}_{lane}.tsv'
+        'benchmarks/sort_{pool}_{lane}.tsv'
     log:
-        'logs/sort_{sample}_{lane}.txt'
+        'logs/sort_{pool}_{lane}.txt'
     conda:
         '../envs/psass.yaml'
     threads:
@@ -76,25 +79,25 @@ rule samtools_sort:
         'samtools sort -@ {threads} -o {output} {input} 2> {log}'
 
 
-def merge_sample_input(wildcards):
+def merge_pool_input(wildcards):
     '''
     '''
-    sample = wildcards.sample
-    lanes = [k for k in config['reads'][sample]]
-    return expand('output/{sample}_{lane}.sorted.cram', sample=sample, lane=lanes)
+    pool = wildcards.pool
+    lanes = [k for k in config['reads'][pool]]
+    return expand('output/{pool}_{lane}.sorted.cram', pool=pool, lane=lanes)
 
 
 rule samtools_merge:
     '''
     '''
     input:
-        merge_sample_input
+        merge_pool_input
     output:
-        'output/{sample}.cram'
+        'output/{pool}.cram'
     benchmark:
-        'benchmarks/merge_{sample}.tsv'
+        'benchmarks/merge_{pool}.tsv'
     log:
-        'logs/merge_{sample}.txt'
+        'logs/merge_{pool}.txt'
     conda:
         '../envs/psass.yaml'
     threads:
@@ -113,11 +116,11 @@ rule samtools_rmdup:
     input:
         rules.samtools_merge.output
     output:
-        'output/{sample}.no_duplicates.cram'
+        'output/{pool}.no_duplicates.cram'
     benchmark:
-        'benchmarks/rmdup_{sample}.tsv'
+        'benchmarks/rmdup_{pool}.tsv'
     log:
-        'logs/rmdup_{sample}.txt'
+        'logs/rmdup_{pool}.txt'
     conda:
         '../envs/psass.yaml'
     resources:
@@ -132,21 +135,23 @@ rule samtools_mpileup:
     '''
     '''
     input:
-        sample1 = 'output/{sample1}.no_duplicates.cram',
-        sample2 = 'output/{sample2}.no_duplicates.cram',
+        pool1 = 'output/{pool1}.no_duplicates.cram',
+        pool2 = 'output/{pool2}.no_duplicates.cram',
         reference = config['assembly']
     output:
-        'output/{sample1}_{sample2}.pileup'
+        'output/{pool1}_{pool2}_nucleotides.tsv'
     benchmark:
-        'benchmarks/mpileup_{sample1}_{sample2}.tsv'
+        'benchmarks/mpileup_{pool1}_{pool2}.tsv'
     log:
-        'logs/mpileup_{sample1}_{sample2}.txt'
+        'logs/mpileup_{pool1}_{pool2}.txt'
     conda:
         '../envs/psass.yaml'
     resources:
-        memory = lambda wildcards, attempt: config['resources']['rmdup']['memory'] * attempt
+        memory = lambda wildcards, attempt: config['resources']['mpileup']['memory'] * attempt
     params:
-        runtime = config['resources']['rmdup']['runtime']
+        runtime = config['resources']['mpileup']['runtime'],
+        min_quality = config['mpileup']['min_quality']
     shell:
-        'samtools mpileup -f {input.reference} -Q 0 -aa '
-        '-o {output} {input.sample1} {input.sample2} 2> {log}'
+        'samtools mpileup -f {input.reference} -Q {params.min_quality} -aa '
+        '{input.pool1} {input.pool2} 2> {log} | '
+        'psass convert - > {output}'
