@@ -21,8 +21,11 @@ reads:
             R1: data/reads/females_L008_R1.fastq.gz
             R2: data/reads/females_L008_R2.fastq.gz
 
-mpileup:
+pileup:
     min_quality: 0
+
+# Temporary before PSASS is added to Conda
+psass_path: /work/project/perch/tools/psass-dev/bin/psass
 
 # PSASS runs
 # Each run is defined by its name, which will be the output prefix used for PSASS 'analyze'.
@@ -32,7 +35,7 @@ psass:
     default:
         window-size: 50000
         output-resolution: 1000
-        group-snps: 1
+        group-snps: True
     stringent:
         freq-het: 0.5
         range-het: 0.05
@@ -40,11 +43,11 @@ psass:
         range-hom: 0
         window-size: 50000
         output-resolution: 1000
-        group-snps: 1
+        group-snps: True
     small_window:
         window-size: 5000
         output-resolution: 500
-        group-snps: 1
+        group-snps: True
 
 # Resources to allocate to jobs for each step.
 # "threads" specify the number of threads to allocate to a job in local mode and the number of cores in cluster mode
@@ -69,7 +72,7 @@ resources:
     rmdup:  # Samtools rmdup
         memory: 2000
         runtime: '0-12:00:00'
-    mpileup:  # Samtools mpileup
+    pileup:  # PSASS pileup
         memory: 32000
         runtime: '2-00:00:00'
     psass:  # PSASS runs

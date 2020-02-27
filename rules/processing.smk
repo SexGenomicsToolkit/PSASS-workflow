@@ -131,7 +131,7 @@ rule samtools_rmdup:
         'samtools rmdup {input} {output} 2> {log}'
 
 
-rule samtools_mpileup:
+rule psass_pileup:
     '''
     '''
     input:
@@ -141,17 +141,17 @@ rule samtools_mpileup:
     output:
         'output/{pool1}_{pool2}_nucleotides.tsv'
     benchmark:
-        'benchmarks/mpileup_{pool1}_{pool2}.tsv'
+        'benchmarks/pileup_{pool1}_{pool2}.tsv'
     log:
-        'logs/mpileup_{pool1}_{pool2}.txt'
+        'logs/pileup_{pool1}_{pool2}.txt'
     conda:
         '../envs/psass.yaml'
     resources:
-        memory = lambda wildcards, attempt: config['resources']['mpileup']['memory'] * attempt
+        memory = lambda wildcards, attempt: config['resources']['pileup']['memory'] * attempt
     params:
-        runtime = config['resources']['mpileup']['runtime'],
-        min_quality = config['mpileup']['min_quality']
+        runtime = config['resources']['pileup']['runtime'],
+        min_quality = config['pileup']['min_quality'],
+        psass_path = config['psass_path']
     shell:
-        'samtools mpileup -f {input.reference} -Q {params.min_quality} -aa '
-        '{input.pool1} {input.pool2} 2> {log} | '
-        'psass convert - > {output}'
+        '{params.psass_path} -r {input.reference} -q {params.min_quality} '
+        '-o {output} {input.pool1} {input.pool2} 2> {log}'
