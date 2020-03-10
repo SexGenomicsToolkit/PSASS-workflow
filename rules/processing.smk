@@ -16,6 +16,10 @@ rule bwa_index:
         'logs/bwa_index.tsv'
     conda:
         '../envs/psass.yaml'
+    threads: get_threads('bwa_index')
+    resources:
+        mem_mb = lambda wildcards, attempt: get_mem('bwa_index', attempt),
+        runtime = lambda wildcards, attempt: get_runtime('bwa_index', attempt)
     shell:
         'bwa index {input} 2> {log}'
 
@@ -45,12 +49,10 @@ rule bwa_mem:
         'logs/align_{pool}_{lane}.txt'
     conda:
         '../envs/psass.yaml'
-    threads:
-        config['resources']['alignment']['threads']
+    threads: get_threads('bwa_mem')
     resources:
-        memory = lambda wildcards, attempt: config['resources']['alignment']['memory'] * attempt
-    params:
-        runtime = config['resources']['alignment']['runtime']
+        mem_mb = lambda wildcards, attempt: get_mem('bwa_mem', attempt),
+        runtime = lambda wildcards, attempt: get_runtime('bwa_mem', attempt)
     shell:
         'bwa mem -t {threads} {input.assembly_file} {input.reads_files} 2> {log} | '
         'samtools view -C -h -T {input.assembly_file} -o {output} 2>> {log}'
@@ -69,12 +71,10 @@ rule samtools_sort:
         'logs/sort_{pool}_{lane}.txt'
     conda:
         '../envs/psass.yaml'
-    threads:
-        config['resources']['sort']['threads']
+    threads: get_threads('samtools_sort')
     resources:
-        memory = lambda wildcards, attempt: config['resources']['sort']['memory'] * attempt
-    params:
-        runtime = config['resources']['sort']['runtime']
+        mem_mb = lambda wildcards, attempt: get_mem('samtools_sort', attempt),
+        runtime = lambda wildcards, attempt: get_runtime('samtools_sort', attempt)
     shell:
         'samtools sort -@ {threads} -o {output} {input} 2> {log}'
 
@@ -100,12 +100,10 @@ rule samtools_merge:
         'logs/merge_{pool}.txt'
     conda:
         '../envs/psass.yaml'
-    threads:
-        config['resources']['merge']['threads']
+    threads: get_threads('samtools_merge')
     resources:
-        memory = lambda wildcards, attempt: config['resources']['merge']['memory'] * attempt
-    params:
-        runtime = config['resources']['merge']['runtime']
+        mem_mb = lambda wildcards, attempt: get_mem('samtools_merge', attempt),
+        runtime = lambda wildcards, attempt: get_runtime('samtools_merge', attempt)
     shell:
         'samtools merge -r -@ {threads} {output} {input} 2> {log}'
 
@@ -123,10 +121,10 @@ rule samtools_rmdup:
         'logs/rmdup_{pool}.txt'
     conda:
         '../envs/psass.yaml'
+    threads: get_threads('samtools_rmdup')
     resources:
-        memory = lambda wildcards, attempt: config['resources']['rmdup']['memory'] * attempt
-    params:
-        runtime = config['resources']['rmdup']['runtime']
+        mem_mb = lambda wildcards, attempt: get_mem('samtools_rmdup', attempt),
+        runtime = lambda wildcards, attempt: get_runtime('samtools_rmdup', attempt)
     shell:
         'samtools rmdup {input} {output} 2> {log}'
 
@@ -139,19 +137,19 @@ rule psass_pileup:
         pool2 = 'output/{pool2}.no_duplicates.cram',
         reference = config['assembly']
     output:
-        'output/{pool1}_{pool2}_nucleotides.tsv'
+        'output/{pool1}_{pool2}.sync'
     benchmark:
         'benchmarks/pileup_{pool1}_{pool2}.tsv'
     log:
         'logs/pileup_{pool1}_{pool2}.txt'
     conda:
         '../envs/psass.yaml'
+    threads: get_threads('psass_pileup')
     resources:
-        memory = lambda wildcards, attempt: config['resources']['pileup']['memory'] * attempt
+        mem_mb = lambda wildcards, attempt: get_mem('psass_pileup', attempt),
+        runtime = lambda wildcards, attempt: get_runtime('psass_pileup', attempt)
     params:
-        runtime = config['resources']['pileup']['runtime'],
-        min_quality = config['pileup']['min_quality'],
-        psass_path = config['psass_path']
+        min_quality = config['psass_pileup']['min_quality']
     shell:
-        '{params.psass_path} -r {input.reference} -q {params.min_quality} '
+        'psass -r {input.reference} -q {params.min_quality} '
         '-o {output} {input.pool1} {input.pool2} 2> {log}'

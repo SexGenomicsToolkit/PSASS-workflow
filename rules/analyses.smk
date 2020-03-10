@@ -15,10 +15,11 @@ rule psass:
         'logs/psass_{pool1}_{pool2}/{preset}.txt'
     conda:
         '../envs/psass.yaml'
+    threads: get_threads('psass')
     resources:
-        memory = lambda wildcards, attempt: config['resources']['psass']['memory'] * attempt
+        mem_mb = lambda wildcards, attempt: get_mem('psass', attempt),
+        runtime = lambda wildcards, attempt: get_runtime('psass', attempt)
     params:
-        runtime = config['resources']['psass']['runtime'],
         psass = lambda wildcards: ' '.join(f'--{k} {v}' for k, v in config['psass'][wildcards.preset].items())
     shell:
         'psass analyze {input} {output.window} '
@@ -39,10 +40,11 @@ rule circos_plot:
         'logs/psass_{pool1}_{pool2}/{preset}_plot.txt'
     conda:
         '../envs/psass.yaml'
+    threads: get_threads('circos_plot')
     resources:
-        memory = lambda wildcards, attempt: config['resources']['psass-vis']['memory'] * attempt
+        mem_mb = lambda wildcards, attempt: get_mem('circos_plot', attempt),
+        runtime = lambda wildcards, attempt: get_runtime('circos_plot', attempt)
     params:
-        runtime = config['resources']['psass-vis']['runtime'],
         prefix = 'output/psass/{pool1}_{pool2}/{preset}'
     shell:
         'echo nothing'

@@ -1,16 +1,22 @@
 # All paths are relative to the pipeline's directory
 
+################################################################################
+####################################  DATA  ####################################
+################################################################################
+
 # Path to the assembly file (fasta)
 assembly: 'data/genome/test.fa'
 
-# Path to a GFF file for gene-level metrics (leave blank if you do not have a GFF file)
+# Path to a GFF file for gene-level metrics (leave blank if no GFF file)
 gff:
 
 # Paths to the reads files.
-# Reads file are organized first by pool (e.g. "females"). There can be more than two pools, <decide what to do>.
-# Within each pool, reads are separated by sequencing lanes and then by "read-pair" files.
-# If the sequencing was done on a single lane, specify it nonetheless. If reads are not paired, simply specify the path to
-# the reads file without name, e.g. 'L001: data/reads/reads.fq.gz'
+# Reads file are organized first by pool (e.g. "females").
+# If there are more than two pools, all pairwise comparisons will be performed.
+# Within each pool, reads are organized by sequencing lane and then
+# by "read-pair" files (R1, R2). If sequencing was not paired-end, just specify
+# the path to the reads file, e.g. 'L001: data/reads/reads.fq.gz'.
+# If sequencing was done on a single lane, specify the lane nonetheless.
 reads:
     males:
         L008:
@@ -21,16 +27,42 @@ reads:
             R1: data/reads/females_L008_R1.fastq.gz
             R2: data/reads/females_L008_R2.fastq.gz
 
-pileup:
-    min_quality: 0
 
-# Temporary before PSASS is added to Conda
-psass_path: /work/project/perch/tools/psass-dev/bin/psass
+################################################################################
+##########################  TOOL-SPECIFIC PARAMETERS  ##########################
+################################################################################
 
-# PSASS runs
-# Each run is defined by its name, which will be the output prefix used for PSASS 'analyze'.
-# All PSASS parameters are defined by their name without the trailing '--' (e.g. "--pool1" becomes "pool1").
-# For a complete description of PSASS parameters, check the documentation (https://github.com/RomainFeron/PSASS).
+bwa_index:
+    extra:  # These parameters will be directly passed to bwa index
+
+bwa_mem:
+    extra:  # These parameters will be directly passed to bwa mem
+
+samtools sort:
+    extra:  # These parameters will be directly passed to samtools sort
+
+samtools merge:
+    extra:  # These parameters will be directly passed to samtools merge
+
+samtools rmdup:
+    extra:  # These parameters will be directly passed to samtools rmdup
+
+psass_pileup:
+    min_quality: 0  # Minimum mapping quality to retain a read in pileup
+    extra:  # These parameters will be directly passed to psass pileup
+
+
+################################################################################
+#################################  PSASS RUNS  #################################
+################################################################################
+
+
+# Each run is defined by its name which will be the prefix for the
+# output of PSASS 'analyze'.
+# All PSASS parameters are specified by their name without the trailing '--'
+# (e.g. "--pool1" becomes "pool1").
+# For a complete description of PSASS parameters, check the documentation
+# (https://github.com/RomainFeron/PSASS).
 psass:
     default:
         window-size: 50000
@@ -49,35 +81,50 @@ psass:
         output-resolution: 500
         group-snps: True
 
-# Resources to allocate to jobs for each step.
-# "threads" specify the number of threads to allocate to a job in local mode and the number of cores in cluster mode
-# "memory" specifies the memory (RAM) to allocate to a job in cluster mode (in Mb for slurm)
-# "runtime" species the maximum execution time for a job in cluster mode (format: "D-HH:MM:SS" for slurm)
+
+################################################################################
+##################################  RESOURCES  #################################
+################################################################################
+
+# Specify the type of scheduler used to run the pipeline.
+# This parameter controls the final format of resources values,
+# e.g. runtime is 'D-HH:MM:SS' for slurm and 'hour:minutes' for LSF,
+# or memory is in Mb for slurm and '<N>K/M/G' for SGE.
+# Resources are always specified with the same format in this config file, and
+# conversion to scheduler-specific formats should be handled by profiles.
+# Because resources have to be integers, the 'output' format for each resource
+# (i.e. the value of the 'resources' field passed to a profile) is Mb for
+# 'mem_mb', seconds for 'runtime', and number of threads for 'threads'.
+scheduler: slurm
+
+# Simplified resources specification using presets
+presets:
+    mem_mb:                   ###### Memory in Mb
+        tiny: 4000            # BWA index, samtools rmdup, psass, psass-vis
+        small: 8000           # Samtools merge
+        medium: 16000         # BWA mem, samtools sort
+        large: 32000          # PSASS pileup
+    runtime:                  ###### Maximum runtime (format: D-HH:MM:SS)
+        tiny: '0-02:00:00'    # BWA index, psass, psass-vis
+        short: '0-04:00:00'   # Samtools sort, samtools merge
+        medium: '0-12:00:00'  # Samtools rmdup, PSASS pileup
+        long: '1-00:00:00'    # BWA mem
+    threads:                  ###### Threads
+        tiny: 1               # All rules not using multiple threads
+        small: 4
+        medium: 8             # Samtools sort, samtools merge
+        large: 24             # Bwa mem
+
+# File describing resources to use for each rule.
+# Only edit if you know what you are doing
+resources_info: cfg/resources.yaml
+
+# Resources can be manually specified for each rule and will override the
+# resources file specifications.
+#
+# resources:
+#     bwa_mem:
+#         threads: 32
+#         mem_mb: 32000
 resources:
-    index:
-        memory: 4000
-        runtime: '0-02:00:00'
-    alignment:  # BWA mem
-        threads: 24
-        memory: 12000
-        runtime: '1-00:00:00'
-    sort:  # Samtools sort
-        threads: 8
-        memory: 16000
-        runtime: '0-04:00:00'
-    merge:  # Samtools merge
-        threads: 8
-        memory: 6000
-        runtime: '0-04:00:00'
-    rmdup:  # Samtools rmdup
-        memory: 2000
-        runtime: '0-12:00:00'
-    pileup:  # PSASS pileup
-        memory: 32000
-        runtime: '2-00:00:00'
-    psass:  # PSASS runs
-        memory: 4000
-        runtime: '0-02:00:00'
-    psass-vis:  # PSASS-vis plotting
-        memory: 4000
-        runtime: '0-01:00:00'
+
