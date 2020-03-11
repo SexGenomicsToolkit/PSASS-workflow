@@ -11,7 +11,7 @@ rule bwa_index:
         f'{config["assembly"]}.pac',
         f'{config["assembly"]}.sa'
     benchmark:
-        'benchmarks/bwa/index.tsv'
+        'benchmarks/bwa_index.tsv'
     log:
         'logs/bwa_index.tsv'
     conda:
@@ -44,9 +44,9 @@ rule bwa_mem:
     output:
         temp('output/{pool}_{lane}.cram')
     benchmark:
-        'benchmarks/align_{pool}_{lane}.tsv'
+        'benchmarks/bwa_mem_{pool}_{lane}.tsv'
     log:
-        'logs/align_{pool}_{lane}.txt'
+        'logs/bwa_mem_{pool}_{lane}.txt'
     conda:
         '../envs/psass.yaml'
     threads: get_threads('bwa_mem')
@@ -66,9 +66,9 @@ rule samtools_sort:
     output:
         temp('output/{pool}_{lane}.sorted.cram')
     benchmark:
-        'benchmarks/sort_{pool}_{lane}.tsv'
+        'benchmarks/samtools_sort_{pool}_{lane}.tsv'
     log:
-        'logs/sort_{pool}_{lane}.txt'
+        'logs/samtools_sort_{pool}_{lane}.txt'
     conda:
         '../envs/psass.yaml'
     threads: get_threads('samtools_sort')
@@ -95,9 +95,9 @@ rule samtools_merge:
     output:
         'output/{pool}.cram'
     benchmark:
-        'benchmarks/merge_{pool}.tsv'
+        'benchmarks/samtools_merge_{pool}.tsv'
     log:
-        'logs/merge_{pool}.txt'
+        'logs/samtools_merge_{pool}.txt'
     conda:
         '../envs/psass.yaml'
     threads: get_threads('samtools_merge')
@@ -116,9 +116,9 @@ rule samtools_rmdup:
     output:
         'output/{pool}.no_duplicates.cram'
     benchmark:
-        'benchmarks/rmdup_{pool}.tsv'
+        'benchmarks/samtools_rmdup_{pool}.tsv'
     log:
-        'logs/rmdup_{pool}.txt'
+        'logs/samtools_rmdup_{pool}.txt'
     conda:
         '../envs/psass.yaml'
     threads: get_threads('samtools_rmdup')
@@ -139,9 +139,9 @@ rule psass_pileup:
     output:
         'output/{pool1}_{pool2}.sync'
     benchmark:
-        'benchmarks/pileup_{pool1}_{pool2}.tsv'
+        'benchmarks/psass_pileup_{pool1}_{pool2}.tsv'
     log:
-        'logs/pileup_{pool1}_{pool2}.txt'
+        'logs/psass_pileup_{pool1}_{pool2}.txt'
     conda:
         '../envs/psass.yaml'
     threads: get_threads('psass_pileup')
