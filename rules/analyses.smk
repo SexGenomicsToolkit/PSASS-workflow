@@ -18,7 +18,7 @@ rule psass:
     threads: get_threads('psass')
     resources:
         mem_mb = lambda wildcards, attempt: get_mem('psass', attempt),
-        runtime = lambda wildcards, attempt: get_runtime('psass', attempt)
+        runtime_s = lambda wildcards, attempt: get_runtime('psass', attempt)
     params:
         psass = lambda wildcards: ' '.join(f'--{k} {v}' for k, v in config['psass'][wildcards.preset].items())
     shell:
@@ -43,7 +43,7 @@ rule circos_plot:
     threads: get_threads('circos_plot')
     resources:
         mem_mb = lambda wildcards, attempt: get_mem('circos_plot', attempt),
-        runtime = lambda wildcards, attempt: get_runtime('circos_plot', attempt)
+        runtime_s = lambda wildcards, attempt: get_runtime('circos_plot', attempt)
     params:
         prefix = 'output/psass/{pool1}_{pool2}/{preset}'
     shell:

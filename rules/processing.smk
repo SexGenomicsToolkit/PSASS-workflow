@@ -19,7 +19,7 @@ rule bwa_index:
     threads: get_threads('bwa_index')
     resources:
         mem_mb = lambda wildcards, attempt: get_mem('bwa_index', attempt),
-        runtime = lambda wildcards, attempt: get_runtime('bwa_index', attempt)
+        runtime_s = lambda wildcards, attempt: get_runtime('bwa_index', attempt)
     shell:
         'bwa index {input} 2> {log}'
 
@@ -52,7 +52,7 @@ rule bwa_mem:
     threads: get_threads('bwa_mem')
     resources:
         mem_mb = lambda wildcards, attempt: get_mem('bwa_mem', attempt),
-        runtime = lambda wildcards, attempt: get_runtime('bwa_mem', attempt)
+        runtime_s = lambda wildcards, attempt: get_runtime('bwa_mem', attempt)
     shell:
         'bwa mem -t {threads} {input.assembly_file} {input.reads_files} 2> {log} | '
         'samtools view -C -h -T {input.assembly_file} -o {output} 2>> {log}'
@@ -74,7 +74,7 @@ rule samtools_sort:
     threads: get_threads('samtools_sort')
     resources:
         mem_mb = lambda wildcards, attempt: get_mem('samtools_sort', attempt),
-        runtime = lambda wildcards, attempt: get_runtime('samtools_sort', attempt)
+        runtime_s = lambda wildcards, attempt: get_runtime('samtools_sort', attempt)
     shell:
         'samtools sort -@ {threads} -o {output} {input} 2> {log}'
 
@@ -103,7 +103,7 @@ rule samtools_merge:
     threads: get_threads('samtools_merge')
     resources:
         mem_mb = lambda wildcards, attempt: get_mem('samtools_merge', attempt),
-        runtime = lambda wildcards, attempt: get_runtime('samtools_merge', attempt)
+        runtime_s = lambda wildcards, attempt: get_runtime('samtools_merge', attempt)
     shell:
         'samtools merge -r -@ {threads} {output} {input} 2> {log}'
 
@@ -124,7 +124,7 @@ rule samtools_rmdup:
     threads: get_threads('samtools_rmdup')
     resources:
         mem_mb = lambda wildcards, attempt: get_mem('samtools_rmdup', attempt),
-        runtime = lambda wildcards, attempt: get_runtime('samtools_rmdup', attempt)
+        runtime_s = lambda wildcards, attempt: get_runtime('samtools_rmdup', attempt)
     shell:
         'samtools rmdup {input} {output} 2> {log}'
 
@@ -147,7 +147,7 @@ rule psass_pileup:
     threads: get_threads('psass_pileup')
     resources:
         mem_mb = lambda wildcards, attempt: get_mem('psass_pileup', attempt),
-        runtime = lambda wildcards, attempt: get_runtime('psass_pileup', attempt)
+        runtime_s = lambda wildcards, attempt: get_runtime('psass_pileup', attempt)
     params:
         min_quality = config['psass_pileup']['min_quality']
     shell:
