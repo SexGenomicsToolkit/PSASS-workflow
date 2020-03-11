@@ -48,4 +48,3 @@ rule circos_plot:
         prefix = 'output/psass/{pool1}_{pool2}/{preset}'
     shell:
         'echo nothing'
-
