@@ -2,7 +2,7 @@
 def generate_psass_param_string(wildcards):
     '''
     '''
-    params = ' '.join(f'--{k} {v}' if v not in (True, False) else f'--{k}'for
+    params = ' '.join(f'--{k}' if isinstance(v, bool) else f'--{k} {v}' for
                       k, v in config['psass'][wildcards.preset].items())
     return params
 
