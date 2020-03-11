@@ -151,5 +151,5 @@ rule psass_pileup:
     params:
         min_quality = config['psass_pileup']['min_quality']
     shell:
-        'psass -r {input.reference} -q {params.min_quality} '
+        'psass pileup -r {input.reference} -q {params.min_quality} '
         '-o {output} {input.pool1} {input.pool2} 2> {log}'
