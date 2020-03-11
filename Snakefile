@@ -1,11 +1,13 @@
 import itertools
 
+wildcard_constraints:
+    pool = '[^.]+'
+
 configfile: 'config.yaml'
 
 include: 'rules/resources.smk'
 include: 'rules/processing.smk'
 include: 'rules/analyses.smk'
-
 
 
 def all_pairs(wildcards):
