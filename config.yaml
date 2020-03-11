@@ -60,7 +60,9 @@ psass_pileup:
 # Each run is defined by its name which will be the prefix for the
 # output of PSASS 'analyze'.
 # All PSASS parameters are specified by their name without the trailing '--'
-# (e.g. "--pool1" becomes "pool1").
+# (e.g. "--pool1" becomes "pool1"). For flags (i.e. parameters set to True when
+# set, like --group-snps), specify the flag name and set the value to True
+# (e.g. group-snps: True).
 # For a complete description of PSASS parameters, check the documentation
 # (https://github.com/RomainFeron/PSASS).
 psass:

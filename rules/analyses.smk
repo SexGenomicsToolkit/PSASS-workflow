@@ -1,4 +1,11 @@
 
+def generate_psass_param_string(wildcards):
+    '''
+    '''
+    params = ' '.join(f'--{k} {v}' if v not in (True, False) else f'--{k}'for
+                      k, v in config['psass'][wildcards.preset].items())
+    return params
+
 
 rule psass:
     '''
@@ -20,7 +27,7 @@ rule psass:
         mem_mb = lambda wildcards, attempt: get_mem('psass', attempt),
         runtime_s = lambda wildcards, attempt: get_runtime('psass', attempt)
     params:
-        psass = lambda wildcards: ' '.join(f'--{k} {v}' for k, v in config['psass'][wildcards.preset].items())
+        psass = generate_psass_param_string
     shell:
         'psass analyze {input} {output.window} '
         '--snps-file {output.snps} --fst-file {output.fst} '
