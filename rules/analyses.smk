@@ -27,11 +27,11 @@ rule psass:
         mem_mb = lambda wildcards, attempt: get_mem('psass', attempt),
         runtime_s = lambda wildcards, attempt: get_runtime('psass', attempt)
     params:
-        psass = generate_psass_param_string
+        psass_settings = generate_psass_param_string
     shell:
         'psass analyze {input} {output.window} '
-        '--snps-file {output.snps} --fst-file {output.fst} '
-        '{params.psass} 2> {log}'
+        '--snp-file {output.snps} --fst-file {output.fst} '
+        '{params.psass_settings} 2> {log}'
 
 
 rule circos_plot:
