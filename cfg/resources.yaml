@@ -1,0 +1,41 @@
+# Default values applied to rules if no resources specified
+default:
+    threads: tiny
+    mem_mb: small
+    runtime: short
+
+# processing.smk
+bwa_index:
+    threads: tiny
+    mem_mb: tiny
+    runtime: tiny
+bwa_mem:
+    threads: large
+    mem_mb: medium
+    runtime: long
+samtools_sort:
+    threads: medium
+    mem_mb: medium
+    runtime: short
+samtools_merge:
+    threads: medium
+    mem_mb: small
+    runtime: short
+samtools_rmdup:
+    threads: tiny
+    mem_mb: tiny
+    runtime: medium
+psass_pileup:
+    threads: tiny
+    mem_mb: large
+    runtime: medium
+
+# analyses.smk
+psass:
+    threads: tiny
+    mem_mb: tiny
+    runtime: tiny
+circos_plot:
+    threads: tiny
+    mem_mb: tiny
+    runtime: tiny
