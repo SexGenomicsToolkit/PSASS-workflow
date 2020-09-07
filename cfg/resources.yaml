@@ -33,7 +33,7 @@ psass_pileup:
 # analyses.smk
 psass:
     threads: tiny
-    mem_mb: tiny
+    mem_mb: medium
     runtime: tiny
 circos_plot:
     threads: tiny
