@@ -30,7 +30,10 @@ rule psass:
         psass_settings = generate_psass_param_string
     shell:
         'psass analyze {input} {output.window} '
-        '--snp-file {output.snps} --fst-file {output.fst} '
+        '--pool1 {wildcards.pool1} '
+        '--pool2 {wildcards.pool2} '
+        '--snp-file {output.snps} '
+        '--fst-file {output.fst} '
         '{params.psass_settings} 2> {log}'
 
 
