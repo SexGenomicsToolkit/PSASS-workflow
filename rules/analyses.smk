@@ -2,8 +2,11 @@
 def generate_psass_param_string(wildcards):
     '''
     '''
-    params = ' '.join(f'--{k}' if isinstance(v, bool) else f'--{k} {v}' for
-                      k, v in config['psass'][wildcards.preset].items())
+    params = ''
+    if config['gff'] is not None:
+        params += f'--gff-file {config["gff"]} '
+    params += ' '.join(f'--{k}' if isinstance(v, bool) else f'--{k} {v}' for
+                       k, v in config['psass'][wildcards.preset].items())
     return params
 
 
