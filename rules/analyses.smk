@@ -31,7 +31,7 @@ rule psass:
         runtime_s = lambda wildcards, attempt: get_runtime('psass', attempt)
     params:
         psass_settings = generate_psass_param_string,
-        gff_output = lambda wildcards, output: f'--genes-file output/psass_{wildcards.pool1}_{wildcards.pool2}/{wildcards.preset}_snps.tsv ' if config['gff'] else ''
+        gff_output = lambda wildcards, output: f'--genes-file output/psass_{wildcards.pool1}_{wildcards.pool2}/{wildcards.preset}_genes.tsv ' if config['gff'] else ''
     shell:
         'psass analyze {input} {output.window} '
         '--pool1 {wildcards.pool1} '
